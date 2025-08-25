@@ -25,7 +25,7 @@ Load Balancer → Multiple API Instances → Read Replicas + Master DB
 
 This system scales by adding more servers as demand increases, with each server handling customer requests independently. The architecture separates order creation (writes) from load calculations (reads) across different databases to prevent bottlenecks. Redis caching stores active order counts in memory for instant lookups, eliminating the need to count orders in the database every time. As the platform grows to thousands of locations, data can be distributed across multiple database servers by location, with older orders archived to maintain fast response times even during peak hours.
 
-## ⚡ Performance Bottlenecks & Solutions
+## Performance Bottlenecks & Solutions
 
 ### 1. Database Query Performance 
 **Bottleneck**: Active order counting with complex WHERE clauses
@@ -59,7 +59,7 @@ $luaScript = "
 ";
 ```
 
-## 🚨 Order Volume Spike Scenarios
+## Order Volume Spike Scenarios
 
 ### What Breaks First: Database Connections
 **Problem**: During peak hours (lunch/dinner), database connection pool exhaustion occurs first
@@ -85,7 +85,7 @@ if ($activeConnections > $threshold) {
 - **Redis Clustering**: Distribute cache across multiple nodes
 - **Graceful Degradation**: Fall back to database if Redis fails
 
-## 🛠️ Quick Start
+## Quick Start
 
 ### Automated Setup (Recommended)
 ```bash
@@ -118,7 +118,7 @@ cp .env.example .env
 ./vendor/bin/sail test
 ```
 
-## 🔧 Production Readiness Checklist
+## Production Readiness Checklist
 
 - [x] Race condition prevention with Lua scripts
 - [x] Graceful degradation when Redis fails  
@@ -131,7 +131,7 @@ cp .env.example .env
 
 ---
 
-## 📚 API Documentation
+## API Documentation
 
 ### Base URL
 ```
@@ -259,7 +259,7 @@ Returns master product catalog for a company.
 
 Returns all locations for a company.
 
-## ⚡ Load Calculation Algorithm
+## Load Calculation Algorithm
 
 ### Active Orders
 Orders with status `received`, `preparing`, or `ready` are considered active and contribute to kitchen load.
@@ -279,7 +279,7 @@ capped at maximum 3.0x
 ### Minimum Time Enforcement
 All orders enforce a minimum 10-minute ready time.
 
-## 🧪 Testing
+## Testing
 
 ### Run Tests
 ```bash
