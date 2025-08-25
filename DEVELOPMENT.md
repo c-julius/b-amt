@@ -14,7 +14,7 @@ This project uses Laravel Sail for containerized development.
 
 ```bash
 git clone <repository-url>
-cd bite
+cd b-amt
 ./setup.sh
 ```
 
