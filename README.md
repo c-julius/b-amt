@@ -91,7 +91,7 @@ if ($activeConnections > $threshold) {
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd bite
+cd b-amt
 
 # Run the automated setup script
 ./setup.sh
