@@ -49,9 +49,9 @@ class PrepTimeCalculator
     /**
      * Calculate estimated ready time for an order at a location
      */
-    public function calculateReadyTime(Location $location, array $locationProductsData): Carbon
+    public function calculateReadyTime(Location $location, array $productsData): Carbon
     {
-        $basePrepTimeSeconds = $this->calculateBasePrepTime($locationProductsData);
+        $basePrepTimeSeconds = $this->calculateBasePrepTime($location, $productsData);
         $loadMultiplier = $this->calculateLoadMultiplier($location);
         $adjustedPrepTimeSeconds = $basePrepTimeSeconds * $loadMultiplier;
         
@@ -63,19 +63,21 @@ class PrepTimeCalculator
     }
 
     /**
-     * Calculate base preparation time from location products
+     * Calculate base preparation time from products at a location
      */
-    private function calculateBasePrepTime(array $locationProductsData): int
+    private function calculateBasePrepTime(Location $location, array $productsData): int
     {
         $totalPrepTime = 0;
         
-        foreach ($locationProductsData as $item) {
-            $locationProduct = LocationProduct::with('product')
-                ->find($item['location_product_id']);
+        foreach ($productsData as $item) {
+            $locationProduct = $location->locationProducts()
+                ->with('product')
+                ->where('product_id', $item['product_id'])
+                ->where('is_available', true)
+                ->first();
             
-            if ($locationProduct && $locationProduct->is_available) {
+            if ($locationProduct) {
                 $quantity = $item['quantity'] ?? 1;
-                // Use the product's base prep time
                 $totalPrepTime += $locationProduct->product->base_prep_time_seconds * $quantity;
             }
         }
@@ -116,24 +118,24 @@ class PrepTimeCalculator
     }
 
     /**
-     * Validate location products data
+     * Validate that products are available at the location
      */
-    public function validateLocationProducts(array $locationProductsData, int $locationId): bool
+    public function validateLocationProducts(array $productsData, int $locationId): bool
     {
-        if (empty($locationProductsData)) {
+        if (empty($productsData)) {
             return false;
         }
 
-        $locationProductIds = collect($locationProductsData)
-            ->pluck('location_product_id')
+        $productIds = collect($productsData)
+            ->pluck('product_id')
             ->unique();
 
-        // Check if all location products exist and belong to the location
-        $validLocationProducts = LocationProduct::where('location_id', $locationId)
+        // Check if all products are available at this location
+        $availableLocationProducts = LocationProduct::where('location_id', $locationId)
             ->where('is_available', true)
-            ->whereIn('id', $locationProductIds)
+            ->whereIn('product_id', $productIds)
             ->count();
 
-        return $validLocationProducts === $locationProductIds->count();
+        return $availableLocationProducts === $productIds->count();
     }
 }

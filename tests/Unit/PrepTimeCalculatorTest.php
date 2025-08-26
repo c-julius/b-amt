@@ -73,14 +73,14 @@ class PrepTimeCalculatorTest extends TestCase
 
     public function test_calculates_correct_base_prep_time_for_single_item()
     {
-        $locationProductsData = [
+        $productsData = [
             [
-                'location_product_id' => $this->locationProducts[0]->id,
+                'product_id' => $this->locationProducts[0]->product_id,
                 'quantity' => 1
             ]
         ];
         
-        $readyTime = $this->calculator->calculateReadyTime($this->location, $locationProductsData);
+        $readyTime = $this->calculator->calculateReadyTime($this->location, $productsData);
         
         // Should be minimum time if below threshold
         $expectedTime = Carbon::now()->addMinutes(PrepTimeCalculator::MINIMUM_READY_TIME_MINUTES);
@@ -89,18 +89,18 @@ class PrepTimeCalculatorTest extends TestCase
 
     public function test_calculates_correct_base_prep_time_for_multiple_items()
     {
-        $locationProductsData = [
+        $productsData = [
             [
-                'location_product_id' => $this->locationProducts[0]->id,
+                'product_id' => $this->locationProducts[0]->product_id,
                 'quantity' => 2
             ],
             [
-                'location_product_id' => $this->locationProducts[1]->id,
+                'product_id' => $this->locationProducts[1]->product_id,
                 'quantity' => 1
             ]
         ];
         
-        $readyTime = $this->calculator->calculateReadyTime($this->location, $locationProductsData);
+        $readyTime = $this->calculator->calculateReadyTime($this->location, $productsData);
         
         // 2 fast items (5 min each) + 1 slow item (15 min) = 25 minutes
         $expectedTime = Carbon::now()->addMinutes(2 * self::FAST_PREP_TIME + self::SLOW_PREP_TIME);
@@ -109,14 +109,14 @@ class PrepTimeCalculatorTest extends TestCase
 
     public function test_enforces_minimum_ready_time()
     {
-        $locationProductsData = [
+        $productsData = [
             [
-                'location_product_id' => $this->locationProducts[0]->id,
+                'product_id' => $this->locationProducts[0]->id,
                 'quantity' => 1
             ]
         ];
         
-        $readyTime = $this->calculator->calculateReadyTime($this->location, $locationProductsData);
+        $readyTime = $this->calculator->calculateReadyTime($this->location, $productsData);
         
         // Fast item is 5 minutes, but minimum is enforced
         $minimumTime = Carbon::now()->addMinutes(PrepTimeCalculator::MINIMUM_READY_TIME_MINUTES);
@@ -132,15 +132,15 @@ class PrepTimeCalculatorTest extends TestCase
         
         $calculator = new PrepTimeCalculator($mockLoadCacheService);
         
-        $locationProductsData = [
+        $productsData = [
             [
-                'location_product_id' => $this->locationProducts[1]->id, // slow item
+                'product_id' => $this->locationProducts[1]->id, // slow item
                 'quantity' => 1
             ]
         ];
         
         $expectedMinutes = self::SLOW_PREP_TIME * PrepTimeCalculator::LOAD_SCALING_MULTIPLIER;
-        $readyTime = $calculator->calculateReadyTime($this->location, $locationProductsData);
+        $readyTime = $calculator->calculateReadyTime($this->location, $productsData);
         $expectedTime = Carbon::now()->addMinutes($expectedMinutes);
         $this->assertEquals($expectedTime->format('Y-m-d H:i'), $readyTime->format('Y-m-d H:i'));
     }
@@ -156,41 +156,41 @@ class PrepTimeCalculatorTest extends TestCase
         
         $calculator = new PrepTimeCalculator($mockLoadCacheService);
         
-        $locationProductsData = [
+        $productsData = [
             [
-                'location_product_id' => $this->locationProducts[1]->id, // slow item
+                'product_id' => $this->locationProducts[1]->id, // slow item
                 'quantity' => 1
             ]
         ];
         
         $expectedMinutes = self::SLOW_PREP_TIME * PrepTimeCalculator::MAX_SCALING_MULTIPLIER;
-        $readyTime = $calculator->calculateReadyTime($this->location, $locationProductsData);
+        $readyTime = $calculator->calculateReadyTime($this->location, $productsData);
         $expectedTime = Carbon::now()->addMinutes($expectedMinutes);
         $this->assertEquals($expectedTime->format('Y-m-d H:i'), $readyTime->format('Y-m-d H:i'));
     }
 
     public function test_validates_location_products_correctly()
     {
-        $validLocationProducts = [
+        $validProducts = [
             [
-                'location_product_id' => $this->locationProducts[0]->id,
+                'product_id' => $this->locationProducts[0]->product_id,
                 'quantity' => 1
             ]
         ];
         
-        $invalidLocationProducts = [
+        $invalidProducts = [
             [
-                'location_product_id' => 999, // Non-existent ID
+                'product_id' => 999, // Non-existent ID
                 'quantity' => 1
             ]
         ];
         
         $this->assertTrue(
-            $this->calculator->validateLocationProducts($validLocationProducts, $this->location->id)
+            $this->calculator->validateLocationProducts($validProducts, $this->location->id)
         );
         
         $this->assertFalse(
-            $this->calculator->validateLocationProducts($invalidLocationProducts, $this->location->id)
+            $this->calculator->validateLocationProducts($invalidProducts, $this->location->id)
         );
     }
 

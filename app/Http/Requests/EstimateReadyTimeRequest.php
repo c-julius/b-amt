@@ -22,9 +22,9 @@ class EstimateReadyTimeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'location_products' => ['required', 'array', 'min:1'],
-            'location_products.*.location_product_id' => ['required', 'integer', 'exists:location_products,id'],
-            'location_products.*.quantity' => ['required', 'integer', 'min:1'],
+            'products' => ['required', 'array', 'min:1'],
+            'products.*.product_id' => ['required', 'integer', 'exists:products,id'],
+            'products.*.quantity' => ['required', 'integer', 'min:1'],
         ];
     }
 
@@ -34,9 +34,9 @@ class EstimateReadyTimeRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'location_products.required' => 'At least one product must be specified for estimation.',
-            'location_products.*.location_product_id.exists' => 'The selected product is not available.',
-            'location_products.*.quantity.min' => 'Quantity must be at least 1.',
+            'products.required' => 'At least one product must be specified for estimation.',
+            'products.*.product_id.exists' => 'The selected product does not exist.',
+            'products.*.quantity.min' => 'Quantity must be at least 1.',
         ];
     }
 }

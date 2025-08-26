@@ -34,9 +34,9 @@ class LocationController extends Controller
      */
     public function estimateReadyTime(EstimateReadyTimeRequest $request, Location $location): JsonResponse
     {
-        // Validate that all location products belong to this location
+        // Validate that all products are available at this location
         if (!$this->prepTimeCalculator->validateLocationProducts(
-            $request->location_products,
+            $request->products,
             $location->id
         )) {
             return response()->json([
@@ -46,7 +46,7 @@ class LocationController extends Controller
 
         $estimatedReadyAt = $this->prepTimeCalculator->calculateReadyTime(
             $location,
-            $request->location_products
+            $request->products
         );
 
         $loadInfo = $this->prepTimeCalculator->getLoadInfo($location);

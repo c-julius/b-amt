@@ -63,13 +63,13 @@ class OrderApiTest extends TestCase
         $orderData = [
             'location_id' => $this->location->id,
             'source' => 'online',
-            'location_products' => [
+            'products' => [
                 [
-                    'location_product_id' => $this->locationProducts[0]->id,
+                    'product_id' => $this->locationProducts[0]->product_id,
                     'quantity' => 2
                 ],
                 [
-                    'location_product_id' => $this->locationProducts[1]->id,
+                    'product_id' => $this->locationProducts[1]->product_id,
                     'quantity' => 1
                 ]
             ]
@@ -109,17 +109,17 @@ class OrderApiTest extends TestCase
         $response = $this->postJson('/api/orders', []);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['location_id', 'source', 'location_products']);
+                 ->assertJsonValidationErrors(['location_id', 'source', 'products']);
     }
 
-    public function test_order_creation_validates_location_products()
+    public function test_order_creation_validates_products()
     {
         $orderData = [
             'location_id' => $this->location->id,
             'source' => 'online',
-            'location_products' => [
+            'products' => [
                 [
-                    'location_product_id' => 999, // Non-existent
+                    'product_id' => 999, // Non-existent
                     'quantity' => 1
                 ]
             ]
@@ -128,15 +128,15 @@ class OrderApiTest extends TestCase
         $response = $this->postJson('/api/orders', $orderData);
 
         $response->assertStatus(422)
-                 ->assertSee('The selected product is not available.');
+                 ->assertSee('The selected product does not exist.');
     }
 
     public function test_can_estimate_ready_time_without_creating_order()
     {
         $estimationData = [
-            'location_products' => [
+            'products' => [
                 [
-                    'location_product_id' => $this->locationProducts[0]->id,
+                    'product_id' => $this->locationProducts[0]->product_id,
                     'quantity' => 1
                 ]
             ]
@@ -194,9 +194,9 @@ class OrderApiTest extends TestCase
         }
 
         $estimationData = [
-            'location_products' => [
+            'products' => [
                 [
-                    'location_product_id' => $this->locationProducts[0]->id,
+                    'product_id' => $this->locationProducts[0]->product_id,
                     'quantity' => 1
                 ]
             ]
@@ -258,9 +258,9 @@ class OrderApiTest extends TestCase
         $onlineOrder = [
             'location_id' => $this->location->id,
             'source' => 'online',
-            'location_products' => [
+            'products' => [
                 [
-                    'location_product_id' => $this->locationProducts[0]->id,
+                    'product_id' => $this->locationProducts[0]->product_id,
                     'quantity' => 1
                 ]
             ]
@@ -269,9 +269,9 @@ class OrderApiTest extends TestCase
         $posOrder = [
             'location_id' => $this->location->id,
             'source' => 'pos',
-            'location_products' => [
+            'products' => [
                 [
-                    'location_product_id' => $this->locationProducts[1]->id,
+                    'product_id' => $this->locationProducts[1]->product_id,
                     'quantity' => 1
                 ]
             ]
@@ -303,9 +303,9 @@ class OrderApiTest extends TestCase
         ]);
 
         $estimationData = [
-            'location_products' => [
+            'products' => [
                 [
-                    'location_product_id' => $quickLocationProduct->id,
+                    'product_id' => $quickLocationProduct->product_id,
                     'quantity' => 1
                 ]
             ]

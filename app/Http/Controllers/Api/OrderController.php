@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateOrderRequest;
 use App\Models\Location;
+use App\Models\LocationProduct;
 use App\Models\Order;
 use App\Services\PrepTimeCalculator;
 use Illuminate\Http\JsonResponse;
@@ -27,9 +28,9 @@ class OrderController extends Controller
             return DB::transaction(function () use ($request) {
                 $location = Location::findOrFail($request->location_id);
                 
-                // Validate that all location products belong to this location
+                // Validate that all products are available at this location
                 if (!$this->prepTimeCalculator->validateLocationProducts(
-                    $request->location_products,
+                    $request->products,
                     $location->id
                 )) {
                     return response()->json([
@@ -40,7 +41,7 @@ class OrderController extends Controller
                 // Calculate estimated ready time
                 $estimatedReadyAt = $this->prepTimeCalculator->calculateReadyTime(
                     $location,
-                    $request->location_products
+                    $request->products
                 );
 
                 // Create the order
@@ -52,11 +53,19 @@ class OrderController extends Controller
                 ]);
 
                 // Attach location products to the order
-                foreach ($request->location_products as $item) {
-                    $order->locationProducts()->attach(
-                        $item['location_product_id'],
-                        ['quantity' => $item['quantity']]
-                    );
+                foreach ($request->products as $item) {
+                    // Find the location_product_id from product_id and location_id
+                    $locationProduct = LocationProduct::where('location_id', $location->id)
+                        ->where('product_id', $item['product_id'])
+                        ->where('is_available', true)
+                        ->first();
+                    
+                    if ($locationProduct) {
+                        $order->locationProducts()->attach(
+                            $locationProduct->id,
+                            ['quantity' => $item['quantity']]
+                        );
+                    }
                 }
 
                 // Load relationships for response

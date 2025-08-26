@@ -174,9 +174,9 @@ Creates a new order and returns estimated ready time.
 {
   "location_id": 1,
   "source": "online",
-  "location_products": [
+  "products": [
     {
-      "location_product_id": 1,
+      "product_id": 1,
       "quantity": 2
     }
   ]
@@ -213,9 +213,9 @@ Estimates ready time without creating an order.
 **Request:**
 ```json
 {
-  "location_products": [
+  "products": [
     {
-      "location_product_id": 5,
+      "product_id": 5,
       "quantity": 1
     }
   ]
@@ -294,6 +294,34 @@ All orders enforce a minimum 10-minute ready time.
 
 # With coverage
 ./vendor/bin/sail test --coverage
+```
+
+```
+$ ./vendor/bin/sail test
+
+   PASS  Tests\Unit\PrepTimeCalculatorTest
+  ✓ calculates correct base prep time for single item         3.50s  
+  ✓ calculates correct base prep time for multiple items      0.05s  
+  ✓ enforces minimum ready time                               0.04s  
+  ✓ applies load multiplier correctly                         0.05s  
+  ✓ caps load multiplier at maximum                           0.05s  
+  ✓ validates location products correctly                     0.05s  
+  ✓ gets correct load info                                    0.04s  
+
+   PASS  Tests\Feature\OrderApiTest
+  ✓ can create order successfully                             0.29s  
+  ✓ order creation validates required fields                  0.28s  
+  ✓ order creation validates products                         0.13s  
+  ✓ can estimate ready time without creating order            0.12s  
+  ✓ can get location products                                 0.09s  
+  ✓ load scaling affects prep time                            0.08s  
+  ✓ can update order status                                   0.05s  
+  ✓ order status validation                                   0.05s  
+  ✓ different order sources are accepted                      0.11s  
+  ✓ minimum prep time is enforced                             0.07s  
+
+  Tests:    17 passed (76 assertions)
+  Duration: 5.17s
 ```
 
 ### Test Coverage
